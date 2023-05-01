@@ -1,3 +1,4 @@
+// setting up server to listen on port 3001
 const express = require('express');
 
 const PORT = process.env.PORT || 3001;
@@ -18,6 +19,7 @@ const db = mysql.createConnection(
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
+//these are the get routes once recieved it attempts a connection to mysql database using the db variable 
 app.get("/api/department", async (req, res) => {
     try {
       const conn = await db.promise();
@@ -51,7 +53,8 @@ app.get("/api/department", async (req, res) => {
       return res.status(500).json({ msg: "oh no!", err: err });
     }
   });
-  
+
+// this is listening for the http post request and inserts the new data in the new created department, role, employee. If not throws an error.
   app.post("/api/department", async (req, res) => {
     try {
       const { department_name } = req.body;
@@ -88,6 +91,7 @@ app.get("/api/department", async (req, res) => {
     }
   });
   
+// listens on the port specified above.
   app.listen(PORT, () => {
     console.log(`listening on port ${PORT}!`);
   });

@@ -1,3 +1,4 @@
+-- inserting data into the company_db database
 USE company_db;
 
 INSERT INTO department (name) VALUES 

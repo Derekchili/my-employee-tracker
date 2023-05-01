@@ -1,10 +1,11 @@
+// my require statements importing external modules
 const inquirer = require('inquirer');
 const server = require('./server');
 const fs = require('fs');
 const mysql = require('mysql2/promise');
 
 
-
+// connecting to the local host
 async function askQuestion() {
      try {
     const db = await mysql.createConnection(
@@ -17,7 +18,7 @@ async function askQuestion() {
     );
     console.log('connected to db');
    
-    
+    // inquirer prompt for the list of questions that will be asked
     const answers = await inquirer.prompt([
       {
         type: 'list',
@@ -70,6 +71,7 @@ async function askQuestion() {
         when: (answers) => answers.mainQuestion === 'Add an employee'
       }
     ]);
+    // these are the switch statements with different cases for different actions, using both await keywords to wait for the async queries to finish before moving on.
     switch (answers.mainQuestion) {
         case 'View all departments':
           const [deptRows, departmentFields] = await db.query('SELECT * FROM department');
@@ -94,20 +96,18 @@ async function askQuestion() {
               `);
               console.table(empRows);
               break;
-            
-          
-        case 'Add a department':
-          await db.query(`INSERT INTO department (name) VALUES (?)`, [answers.departmentName]);
-          console.log('Department added!');
-          break;
-        case 'Add a role':
-          const [deptRowsForRole, _] = await db.execute('SELECT * FROM department');
-          const deptNames = deptRowsForRole.map(row => row.name);
-          const { roleDepartment } = answers;
-          if (!deptNames.includes(roleDepartment)) {
-            console.log('Invalid department name!');
-            return;
-          }
+            case 'Add a department':
+              await db.query(`INSERT INTO department (name) VALUES (?)`, [answers.departmentName]);
+              console.log('Department added!');
+              break;
+            case 'Add a role':
+              const [deptRowsForRole, _] = await db.execute('SELECT * FROM department');
+              const deptNames = deptRowsForRole.map(row => row.name);
+              const { roleDepartment } = answers;
+              if (!deptNames.includes(roleDepartment)) {
+                console.log('Invalid department name!');
+                return;
+              }
           await db.execute(`
             INSERT INTO role (title, salary, department_id) 
             VALUES (?, ?, (SELECT id FROM department WHERE name = ?))
@@ -127,13 +127,13 @@ async function askQuestion() {
             {
               type: 'list',
               name: 'empRole',
-              message: 'Which employee would you like to update?',
+              message: 'What is the new employees role?',
               choices: roleNames
             },
             {
               type: 'list',
               name: 'empManager',
-              message: 'What is the employee\'s new role?',
+              message: 'Who will be the new employee\'s manager?',
               choices: managerNames
             }
           ]);
@@ -186,6 +186,7 @@ async function askQuestion() {
     } catch (error) {
       console.log(error);
     }
+    // calling the askQuestion function as a recursive loop inside the function and then the last one to start the function.
     askQuestion();
   }
   askQuestion();
